@@ -1,0 +1,240 @@
+* Which-Key
+which-key is a minor mode for Emacs that displays the key bindings following 
+your currently entered incomplete command (a prefix) in a popup
+#+BEGIN_SRC emacs-lisp
+   (use-package which-key
+      :ensure t
+      :init (which-key-mode)
+      )
+#+END_SRC
+* Org-Mode
+** Org-bullets
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
+#+END_SRC
+** Org QOL
+#+BEGIN_SRC emacs-lisp
+  (setq org-log-done 'time)
+  (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
+  (add-hook 'org-mode-hook 'org-indent-mode)
+
+  (setq org-agenda-custom-commands
+        '(("d" "Default Agenda View"
+           ((agenda "d")
+            (todo ""
+                  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
+                   (org-agenda-overriding-header "Unscheduled/deadline tasks:")))))))
+#+END_SRC
+* QOL Changes
+These are some QOL changes which make Emacs a much better experience.
+#+BEGIN_SRC emacs-lisp
+  (setq make-backup-file nil) ;;  Don't save backup files
+  (setq auto-save-default nil) ;;  Don't auto-save files
+  (setq scroll-conservatively 100) ;;  Scroll conservatively
+  (when window-system (global-hl-line-mode t)) ;;  Highlight line where cursor is present
+  ;;(when window-system (global-prettify-symbols-mode t)) ;;  Pretty Symbols
+  (tool-bar-mode -1) ;; Remove tool bar
+  (menu-bar-mode -1) ;; Remove menu bar
+  (scroll-bar-mode -1) ;; Remove scroll bar
+  (setq ring-bell-function 'ignore) ;; Remove annoying bell sound
+  (show-paren-mode 1)
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  (setq inhibit-startup-message t)
+#+END_SRC
+
+* Sudo edit
+#+BEGIN_SRC emacs-lisp
+  (use-package sudo-edit
+    :ensure t
+    :bind
+      ("s-e" . sudo-edit))
+#+END_SRC
+* Avy
+Great package to quickly find and jump on a character.
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind
+    ("M-s" . avy-goto-char))
+#+END_SRC
+* Emacs config edit/reload
+** Edit
+#+BEGIN_SRC emacs-lisp
+  (defun config-visit ()
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+  (global-set-key (kbd "C-c e") 'config-visit)
+#+END_SRC
+** Reload
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c r") 'config-reload)
+#+END_SRC
+* Magit
+Git wrapper for Emacs.
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :bind
+    ("C-x g" . magit-status))
+#+END_SRC 
+* Neotree
+Sidebar navigation for Emacs.
+#+BEGIN_SRC emacs-lisp
+  (use-package neotree
+    :ensure t
+    :bind
+    ([f8] . neotree-toggle))
+#+END_SRC
+* C++
+** C++ template
+Add a default template to each C++ file.
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'find-file-hooks 'maybe-load-template)
+  (defun maybe-load-template ()
+    (interactive)
+    (when (and 
+	   (string-match "\\.cpp$" (buffer-file-name))
+	   (eq 1 (point-max)))
+      (insert-file "~/.templates/base.cpp")))
+#+END_SRC
+** C++ compile and run
+Compile and run a C++ file by pressing f5.
+#+BEGIN_SRC emacs-lisp
+  (defun compileandrun()
+    (interactive)
+    (save-buffer)
+    (compile (concat "g++ "  (file-name-nondirectory (buffer-file-name)) " -o " (file-name-sans-extension   (file-name-nondirectory (buffer-file-name))) " && ./" (file-name-sans-extension  (file-name-nondirectory (buffer-file-name)))) t )
+  (other-window 1)
+  (end-of-buffer)
+  )
+  (global-set-key (kbd "<f5>") 'compileandrun)
+  ;;(add-hook 'c++-mode-hook (local-set-key (kbd "<f5>") 'compileandrun))
+#+END_SRC
+* Electric braces
+#+BEGIN_SRC emacs-lisp
+  (setq electric-pair-pairs '(
+			     (?\{ . ?\})
+			     (?\( . ?\))
+			     (?\[ . ?\])
+			     (?\" . ?\")
+			     ))
+  (electric-pair-mode t)
+#+END_SRC
+* Autocomplete
+** Company Mode
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :config
+    (setq company-idle-delay 0)
+    (setq company-minimum-prefix-length 3))
+
+  (with-eval-after-load 'company
+    (define-key company-active-map (kbd "M-n") nil)
+    (define-key company-active-map (kbd "M-p") nil)
+    (define-key company-active-map (kbd "C-n") #'company-select-next)
+    (define-key company-active-map (kbd "C-p") #'company-select-previous)
+    (define-key company-active-map (kbd "SPC") #'company-abort))
+#+END_SRC
+** Flycheck
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure t)
+#+END_SRC
+** C++ AutoComplete
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'c++-mode-hook 'yas-minor-mode)
+  (add-hook 'c-mode-hook 'yas-minor-mode)
+
+  (use-package flycheck-clang-analyzer
+    :ensure t
+    :config
+    (with-eval-after-load 'flycheck
+      (require 'flycheck-clang-analyzer)
+       (flycheck-clang-analyzer-setup)))
+
+  (with-eval-after-load 'company
+    (add-hook 'c++-mode-hook 'company-mode)
+    (add-hook 'c-mode-hook 'company-mode))
+
+  (use-package company-c-headers
+    :ensure t)
+
+  (use-package company-irony
+    :ensure t
+    :config
+    (setq company-backends '((company-c-headers
+                              company-dabbrev-code
+                              company-irony))))
+
+  (use-package irony
+    :ensure t
+    :config
+    (add-hook 'c++-mode-hook 'irony-mode)
+    (add-hook 'c-mode-hook 'irony-mode)
+    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+#+END_SRC
+* Modeline
+** spaceline
+#+BEGIN_SRC emacs-lisp
+  (use-package spaceline
+    :ensure t
+    :config
+    (require 'spaceline-config)
+      (setq spaceline-buffer-encoding-abbrev-p nil)
+   ;;   (setq spaceline-line-column-p nil)
+   ;;   (setq spaceline-line-p nil)
+      (setq powerline-default-separator (quote arrow))
+      (spaceline-spacemacs-theme))
+#+END_SRC
+* Popup kill ring
+#+BEGIN_SRC emacs-lisp
+  (use-package popup-kill-ring
+    :ensure t
+    :bind ("M-y" . popup-kill-ring))
+  (setq kill-ring-max 100)
+#+END_SRC
+* Terminal
+** Default shell should be bash
+#+BEGIN_SRC emacs-lisp
+  (defvar my-term-shell "/bin/bash")
+  (defadvice ansi-term (before force-bash)
+    (interactive (list my-term-shell)))
+  (ad-activate 'ansi-term)
+#+END_SRC
+** Easy to remember key binding
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "<s-return>") 'ansi-term)
+#+END_SRC
+* Programming
+** Enable relative line numbers
+#+BEGIN_SRC emacs-lisp
+  (use-package linum-relative
+    :ensure t
+    :config
+      (setq linum-relative-current-symbol "")
+      (add-hook 'prog-mode-hook 'linum-relative-mode))
+#+END_SRC
+* Text Encoding
+#+BEGIN_SRC emacs-lisp
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8-unix)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+#+END_SRC
+* Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-items '((recents . 10)))
+    (setq dashboard-banner-logo-title "Editor of a lifetime"))
+#+END_SRC
