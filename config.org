@@ -229,12 +229,4 @@ Compile and run a C++ file by pressing f5.
   (set-selection-coding-system 'utf-8)
   (prefer-coding-system 'utf-8)
 #+END_SRC
-* Dashboard
-#+BEGIN_SRC emacs-lisp
-  (use-package dashboard
-    :ensure t
-    :config
-    (dashboard-setup-startup-hook)
-    (setq dashboard-items '((recents . 10)))
-    (setq dashboard-banner-logo-title "Editor of a lifetime"))
-#+END_SRC
+
