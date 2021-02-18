@@ -17,16 +17,11 @@ your currently entered incomplete command (a prefix) in a popup
 #+END_SRC
 ** Org QOL
 #+BEGIN_SRC emacs-lisp
+  (setq org-agenda-window-setup 'current-window)
   (setq org-log-done 'time)
   (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
   (add-hook 'org-mode-hook 'org-indent-mode)
-
-  (setq org-agenda-custom-commands
-        '(("d" "Default Agenda View"
-           ((agenda "d")
-            (todo ""
-                  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
-                   (org-agenda-overriding-header "Unscheduled/deadline tasks:")))))))
+  (setq org-ellipsis "⮷")
 #+END_SRC
 * QOL Changes
 These are some QOL changes which make Emacs a much better experience.
@@ -60,6 +55,14 @@ Great package to quickly find and jump on a character.
     :bind
     ("M-s" . avy-goto-char))
 #+END_SRC
+* Ace-Window
+Package to go to any window
+#+begin_src emacs-lisp
+  (use-package ace-window
+    :ensure t
+    :bind
+    ("C-x o" . ace-window))
+#+end_src
 * Emacs config edit/reload
 ** Edit
 #+BEGIN_SRC emacs-lisp
@@ -106,15 +109,14 @@ Add a default template to each C++ file.
 ** C++ compile and run
 Compile and run a C++ file by pressing f5.
 #+BEGIN_SRC emacs-lisp
-  (defun compileandrun()
-    (interactive)
-    (save-buffer)
-    (compile (concat "g++ "  (file-name-nondirectory (buffer-file-name)) " -o " (file-name-sans-extension   (file-name-nondirectory (buffer-file-name))) " && ./" (file-name-sans-extension  (file-name-nondirectory (buffer-file-name)))) t )
-  (other-window 1)
-  (end-of-buffer)
-  )
-  (global-set-key (kbd "<f5>") 'compileandrun)
-  ;;(add-hook 'c++-mode-hook (local-set-key (kbd "<f5>") 'compileandrun))
+  (defun compile-and-run()
+      (interactive)
+      (save-buffer)
+      (compile (concat "g++ "  (file-name-nondirectory (buffer-file-name)) " -o " (file-name-sans-extension   (file-name-nondirectory (buffer-file-name))) " && ./" (file-name-sans-extension  (file-name-nondirectory (buffer-file-name)))) t )
+      (other-window 1)
+      (end-of-buffer)
+    )
+    (with-eval-after-load "cc-mode" (define-key c++-mode-map [f5] 'compile-and-run))
 #+END_SRC
 * Electric braces
 #+BEGIN_SRC emacs-lisp
@@ -125,60 +127,6 @@ Compile and run a C++ file by pressing f5.
 			     (?\" . ?\")
 			     ))
   (electric-pair-mode t)
-#+END_SRC
-* Autocomplete
-** Company Mode
-#+BEGIN_SRC emacs-lisp
-  (use-package company
-    :ensure t
-    :config
-    (setq company-idle-delay 0)
-    (setq company-minimum-prefix-length 3))
-
-  (with-eval-after-load 'company
-    (define-key company-active-map (kbd "M-n") nil)
-    (define-key company-active-map (kbd "M-p") nil)
-    (define-key company-active-map (kbd "C-n") #'company-select-next)
-    (define-key company-active-map (kbd "C-p") #'company-select-previous)
-    (define-key company-active-map (kbd "SPC") #'company-abort))
-#+END_SRC
-** Flycheck
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :ensure t)
-#+END_SRC
-** C++ AutoComplete
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'c++-mode-hook 'yas-minor-mode)
-  (add-hook 'c-mode-hook 'yas-minor-mode)
-
-  (use-package flycheck-clang-analyzer
-    :ensure t
-    :config
-    (with-eval-after-load 'flycheck
-      (require 'flycheck-clang-analyzer)
-       (flycheck-clang-analyzer-setup)))
-
-  (with-eval-after-load 'company
-    (add-hook 'c++-mode-hook 'company-mode)
-    (add-hook 'c-mode-hook 'company-mode))
-
-  (use-package company-c-headers
-    :ensure t)
-
-  (use-package company-irony
-    :ensure t
-    :config
-    (setq company-backends '((company-c-headers
-                              company-dabbrev-code
-                              company-irony))))
-
-  (use-package irony
-    :ensure t
-    :config
-    (add-hook 'c++-mode-hook 'irony-mode)
-    (add-hook 'c-mode-hook 'irony-mode)
-    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
 #+END_SRC
 * Modeline
 ** spaceline
@@ -210,7 +158,7 @@ Compile and run a C++ file by pressing f5.
 #+END_SRC
 ** Easy to remember key binding
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "<s-return>") 'ansi-term)
+  (global-set-key (kbd "<s-SPC>") 'ansi-term)
 #+END_SRC
 * Programming
 ** Enable relative line numbers
@@ -230,3 +178,75 @@ Compile and run a C++ file by pressing f5.
   (prefer-coding-system 'utf-8)
 #+END_SRC
 
+* Yasnippet
+#+begin_src emacs-lisp
+(use-package yasnippet
+        :ensure t
+        :init
+        (yas-global-mode 1))
+#+end_src
+* Org-Blogging
+Custom function to create a new org file for publishing on my Jekyll blog.
+#+begin_src emacs-lisp
+  (defun create-org-file (title)
+    (interactive "sEnter title for post: ")
+    (find-file (concat "~/" 
+    (shell-command-to-string "echo -n $(date +%Y-%m-%d-)") title ".org"))
+    )
+
+  (global-set-key (kbd "<f6>") 'create-org-file)
+#+end_src
+Function to convert org-mode file to markdown file
+#+begin_src emacs-lisp
+    (defun publish-to-blog()
+      (interactive)
+      (save-buffer)
+      (org-md-export-to-markdown)
+      (shell-command (concat "echo -e '---\n---\n' | cat - " (file-name-base (buffer-file-name)) ".md > temp && mv temp " (file-name-base (buffer-file-name)) ".md"))
+      (shell-command (concat "mv " (file-name-base (buffer-file-name)) ".md" " ~/Github/parimal7.github.io/_posts/"))
+      (shell-command (concat "cd ~/Github/parimal7.github.io/_posts/ && git add . && git commit -m 'Added file " (file-name-base (buffer-file-name)) ".md' && git push"))
+      )
+
+  (global-set-key (kbd "<f7>") 'publish-to-blog)
+#+end_src
+* Org-default
+#+begin_src emacs-lisp
+  ;(add-to-list 'default-frame-alist '(fullscreen . maximized))
+  ;(setq org-agenda-span 'day)
+  ;(setq initial-buffer-choice "~/Github/org-mode/agenda-files/agenda.org")
+
+ ; (defun my-init-hook ()
+  ;  (split-window-right)
+   ; (let ((org-agenda-window-setup 'other-window))
+    ;  (org-agenda nil "a")))
+
+  ;(add-hook 'window-setup-hook #'my-init-hook)
+#+end_src
+* Org-Archive
+Archive all done tasks
+#+begin_src emacs-lisp
+  (defun org-archive-done-tasks ()
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     "/DONE" 'agenda))
+#+end_src
+* Programming
+#+begin_src emacs-lisp
+  (use-package linum-relative
+    :ensure t
+    :config
+      (setq linum-relative-current-symbol "")
+      (add-hook 'prog-mode-hook 'linum-relative-mode))
+#+end_src
+* Ido
+#+begin_src emacs-lisp
+  (setq ido-enable-flex-matching t)
+  (setq ido-everywhere t)
+  (ido-mode 1)
+  (ido-vertical-mode 1)
+  (setq ido-vertical-define-keys 'C-n-and-C-p-only)
+  (setq ido-vertical-show-count t)
+#+end_src
