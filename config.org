@@ -29,6 +29,7 @@ These are some QOL changes which make Emacs a much better experience.
   (setq make-backup-file nil) ;;  Don't save backup files
   (setq auto-save-default nil) ;;  Don't auto-save files
   (setq scroll-conservatively 100) ;;  Scroll conservatively
+  (setq-default cursor-type 'bar)  ;; Set cursor as bar
   (when window-system (global-hl-line-mode t)) ;;  Highlight line where cursor is present
   ;;(when window-system (global-prettify-symbols-mode t)) ;;  Pretty Symbols
   (tool-bar-mode -1) ;; Remove tool bar
@@ -38,6 +39,9 @@ These are some QOL changes which make Emacs a much better experience.
   (show-paren-mode 1)
   (defalias 'yes-or-no-p 'y-or-n-p)
   (setq inhibit-startup-message t)
+  ;;set tab width as 2, replace tab with space
+  (setq-default tab-width 2)
+  (setq-default indent-tabs-mode nil)
 #+END_SRC
 
 * Sudo edit
@@ -241,12 +245,74 @@ Archive all done tasks
       (setq linum-relative-current-symbol "")
       (add-hook 'prog-mode-hook 'linum-relative-mode))
 #+end_src
-* Ido
+* Org-Journal
 #+begin_src emacs-lisp
-  (setq ido-enable-flex-matching t)
-  (setq ido-everywhere t)
-  (ido-mode 1)
-  (ido-vertical-mode 1)
-  (setq ido-vertical-define-keys 'C-n-and-C-p-only)
-  (setq ido-vertical-show-count t)
+  (use-package org-journal
+    :ensure t
+    :defer t
+    :init
+    ;; Change default prefix key; needs to be set before loading org-journal
+    :config
+    (setq org-journal-dir "~/Github/org-mode/journal")
+    (setq org-journal-date-format "%A, %d %B %Y")
+    )
+#+end_src
+* Super-save
+#+begin_src emacs-lisp
+  (use-package super-save
+    :ensure t
+    :config
+    (super-save-mode +1)
+    (setq super-save-auto-save-when-idle t))
+
+  ;; add integration with ace-window
+  (add-to-list 'super-save-triggers 'ace-window)
+
+  ;; save on find-file
+  (add-to-list 'super-save-hook-triggers 'find-file-hook)
+#+end_src
+* Ivy
+#+begin_src emacs-lisp
+  (use-package counsel
+    :ensure t
+    :config
+    (ivy-mode 1)   ; enable ivy everywhere
+    (setq ivy-use-virtual-buffers t) ;
+    (setq ivy-count-format "(%d/%d) ")
+    ;Ivy-based interface to standard commands
+    (global-set-key (kbd "C-s") 'swiper-isearch)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "M-y") 'counsel-yank-pop)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "<f2> j") 'counsel-set-variable)
+    (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+    (global-set-key (kbd "C-c p v") 'ivy-push-view)
+    ;(global-set-key (kbd "C-c V") 'ivy-pop-view)
+    (global-set-key (kbd "C-c s v") 'ivy-switch-view)
+    ;Ivy-based interface to shell and system tools
+    ;(global-set-key (kbd "C-c c") 'counsel-compile)
+    ;(global-set-key (kbd "C-c g") 'counsel-git)
+    ;(global-set-key (kbd "C-c j") 'counsel-git-grep)
+    ;(global-set-key (kbd "C-c L") 'counsel-git-log)
+    ;(global-set-key (kbd "C-c k") 'counsel-rg)
+    ;(global-set-key (kbd "C-c m") 'counsel-linux-app)
+    (global-set-key (kbd "C-c f") 'counsel-fzf)
+    ;(global-set-key (kbd "C-x l") 'counsel-locate)
+    ;(global-set-key (kbd "C-c J") 'counsel-file-jump)
+    ;(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+    ;(global-set-key (kbd "C-c w") 'counsel-wmctrl)
+    ;Ivy-resume and other commands
+    ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
+    ;(global-set-key (kbd "C-c b") 'counsel-bookmark)
+    ;(global-set-key (kbd "C-c d") 'counsel-descbinds)
+    ;(global-set-key (kbd "C-c g") 'counsel-git)
+    ;(global-set-key (kbd "C-c o") 'counsel-outline)
+    ;(global-set-key (kbd "C-c t") 'counsel-load-theme)
+    ;(global-set-key (kbd "C-c F") 'counsel-org-file)
+    )
 #+end_src
