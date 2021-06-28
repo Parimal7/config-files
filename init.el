@@ -1,3 +1,4 @@
+(server-start) 
 (require 'package)
 (setq package-enable-at-startup nil)
 (setq make-backup-files nil)
@@ -47,7 +48,7 @@
  '(org-agenda-files '("~/Notes/agenda.org"))
  '(org-export-backends '(ascii html icalendar latex md odt))
  '(package-selected-packages
-   '(vterm visual-fill-column ivy counsel super-save ido-vertical-mode yasnippet ace-window org-journal linum-relative htmlize company-irony company-c-headers flycheck-clang-analyzer flycheck popup-kill-ring spaceline company dashboard rainbow-delimiters hungry-delete sudo-edit rainbow-mode neotree magit google-this org-bullets spacemacs-theme which-key use-package))
+   '(lsp-mode vterm visual-fill-column ivy counsel super-save ido-vertical-mode yasnippet ace-window org-journal linum-relative htmlize company-irony company-c-headers flycheck-clang-analyzer flycheck popup-kill-ring spaceline company dashboard rainbow-delimiters hungry-delete sudo-edit rainbow-mode neotree magit google-this org-bullets spacemacs-theme which-key use-package))
  '(pdf-view-midnight-colors '("#b2b2b2" . "#292b2e")))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

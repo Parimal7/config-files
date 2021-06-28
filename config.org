@@ -263,7 +263,7 @@ Archive all done tasks
   (use-package sudo-edit
     :ensure t
     :bind
-      ("s-e" . sudo-edit))
+      ("C-c C-r" . sudo-edit))
 #+END_SRC
 * Super-save
 #+begin_src emacs-lisp
@@ -321,4 +321,9 @@ your currently entered incomplete command (a prefix) in a popup
         :ensure t
         :init
         (yas-global-mode 1))
+#+end_src
+ 
+* QOL Changes
+#+begin_src emacs-lisp
+(global-auto-revert-mode t)
 #+end_src
