@@ -324,11 +324,11 @@ your currently entered incomplete command (a prefix) in a popup
     :init
     (setq org-roam-v2-ack t)
 
-    :hook
-    (after-init . org-roam-mode)
+    ;:hook
+    ;(after-init . org-roam-mode)
 
     :custom
-    (org-roam-directory "~/Notes/")
+    (org-roam-directory "~/Github/org-roam-notes/")
     (org-roam-dailies-directory "Journal/")
     (org-roam-dailies-capture-templates
      '(("d" "default" entry
