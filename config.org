@@ -148,7 +148,7 @@ Sidebar navigation for Emacs.
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-window-setup 'current-window)
   (setq org-log-done 'time)
-  (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "PROG(p)" "|" "DONE(d)" "CANCELLED(c)")))
+  (setq org-todo-keywords '((sequence "NOT STARTED(t)" "IN PROGESS(p)" "|" "COMPLETED(d)")))
   (add-hook 'org-mode-hook 'org-indent-mode)
 #+END_SRC
 ** Org Code Snippets
