@@ -15,17 +15,6 @@ Great package to quickly find and jump on a character.
     ("M-s" . avy-goto-char))
 #+END_SRC
 * C++
-** C++ template
-Add a default template to each C++ file.
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'find-file-hooks 'maybe-load-template)
-  (defun maybe-load-template ()
-    (interactive)
-    (when (and 
-	   (string-match "\\.cpp$" (buffer-file-name))
-	   (eq 1 (point-max)))
-      (insert-file "~/.templates/base.cpp")))
-#+END_SRC
 ** C++ compile and run
 Compile and run a C++ file by pressing f5.
 #+BEGIN_SRC emacs-lisp
