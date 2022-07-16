@@ -317,7 +317,7 @@ your currently entered incomplete command (a prefix) in a popup
     ;(after-init . org-roam-mode)
 
     :custom
-    (org-roam-directory "~/Github/Parimal7/org-roam-notes/")
+    (org-roam-directory "~/Github/parimal7/org-roam-notes/")
     (org-roam-capture-templates
      '(("d" "default" plain
         "%?"
@@ -343,12 +343,13 @@ your currently entered incomplete command (a prefix) in a popup
 #+end_src
 * Ox Hugo
 #+begin_src emacs-lisp
-      (use-package ox-hugo
-        :ensure t   ;Auto-install the package from Melpa
-        :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-        :after ox
-        :custom
-        (org-hugo-base-dir "~/Github/Parimal7/parimal.codes")
-        (org-hugo-date-format "%Y-%m-%d")
-        (org-hugo-front-matter-format "yaml"))
+  (use-package ox-hugo
+    :ensure t   ;Auto-install the package from Melpa
+    :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+    :after ox
+    :custom
+    (org-hugo-base-dir "~/Github/parimal7/parimal.codes")
+    (org-hugo-date-format "%Y-%m-%d")
+    (org-hugo-front-matter-format "yaml")
+    (org-hugo-default-section-directory "blog"))
 #+end_src
